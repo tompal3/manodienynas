@@ -31,10 +31,10 @@ Setup crontab
 crontab -e
 ```
 
-add a line:
+if your repo is cloned in home directory then add it to crontab to execute script every hour At minute 30 :
 
 ```sh
-30 * * * * /bin/python3  ~/manodienynas/diary.py
+30 * * * * cd manodienynas && /usr/bin/python3  diary.py
 ```
 
 ~/manodienynas/diary.py should point to `diary.py` file and cron service should be enabled.

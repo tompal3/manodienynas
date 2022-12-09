@@ -1,0 +1,9 @@
+{
+    "username": "manodiendynas_login_email@gmail.com",
+    "password": "manodienynas_password",
+    "uri": "https://www.manodienynas.lt",
+    "sender_email": "no-replay@gmail.com",
+    "receiver_email": "your_email_to_forward_emails@gmail.com",
+    "smtp_server": "smtp.server.com",
+    "events_file": "events.txt"
+}

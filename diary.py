@@ -207,6 +207,9 @@ class SoupReader():
         soup = self.__invoke_soap(content)
         events = soup.find_all(class_=lambda value: value and value.startswith(
             "panel panel-default event-holder ev-count-cl"))
+        br_tag = soup.new_tag("br")
+        for event in events:
+            event.a.insert(0,br_tag)
         return events
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -263,9 +266,12 @@ def mail_client(message_content, subject, **kwargs):
         .event-header {{
             color: green;
         }}
-        .event-text .btn {{
+        a {{
             padding: 6px 15px 6px 45px;
             background-size: 25px;
+        }}
+        span {{
+            display: block;
         }}
         </style>
             <h4 class="event-header">{message_header}</h4>

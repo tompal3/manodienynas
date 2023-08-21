@@ -64,7 +64,14 @@ class DiaryClient():
         payload = {'password': self.__password,
                    'username': self.__username}
         endpoint = self.__uri + "/1/lt/ajax/user/login"
-        self.__session.post(url=endpoint, data=payload)
+        try: 
+            self.__session.post(url=endpoint, data=payload)
+        except requests.exceptions.HTTPError as err:
+            print(f"Http error ocured {err}")
+        except requests.exceptions.TooManyRedirects as err:
+            print(f"Too many redirects {err}")
+
+
 
     def get_messages(self):
         """get messages html content
@@ -206,7 +213,7 @@ class SoupReader():
         content = self.__diary_client.get_event()
         soup = self.__invoke_soap(content)
         events = soup.find_all(class_=lambda value: value and value.startswith(
-            "panel panel-default event-holder ev-count-cl"))
+            "md-block event-holder ev-count-cl event_block block-new_message"))
         br_tag = soup.new_tag("br")
         for event in events:
             event.a.insert(0,br_tag)

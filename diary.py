@@ -64,14 +64,12 @@ class DiaryClient():
         payload = {'password': self.__password,
                    'username': self.__username}
         endpoint = self.__uri + "/1/lt/ajax/user/login"
-        try: 
+        try:
             self.__session.post(url=endpoint, data=payload)
         except requests.exceptions.HTTPError as err:
             print(f"Http error ocured {err}")
         except requests.exceptions.TooManyRedirects as err:
             print(f"Too many redirects {err}")
-
-
 
     def get_messages(self):
         """get messages html content
@@ -213,10 +211,13 @@ class SoupReader():
         content = self.__diary_client.get_event()
         soup = self.__invoke_soap(content)
         events = soup.find_all(class_=lambda value: value and value.startswith(
-            "md-block event-holder ev-count-cl event_block block-new_message"))
-        br_tag = soup.new_tag("br")
+            "md-block event-holder ev-count-cl event_block"))
         for event in events:
-            event.a.insert(0,br_tag)
+            new_tag = soup.new_tag("br")
+            for div in event.find_all("a", {'class': 'btn btn-default pull-right parent-link'}):
+                div.decompose()
+            if event.span:
+                event.span.insert_after(new_tag)
         return events
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -259,12 +260,12 @@ def mail_client(message_content, subject, **kwargs):
         kwargs (dict): mail client settings
     """
     sender_email = kwargs.get("sender_email")
-    receiver_email = kwargs.get("receiver_email")
+    receiver_emails = kwargs.get("receiver_email")
     smtp_server = kwargs.get("smtp_server")
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
     message["From"] = sender_email
-    message["To"] = receiver_email
+    message["To"] = ', '.join(receiver_emails)
     message_header = kwargs.get("message_header", "")
     html = f"""
     <html>
@@ -273,11 +274,10 @@ def mail_client(message_content, subject, **kwargs):
         .event-header {{
             color: green;
         }}
-        a {{
-            padding: 6px 15px 6px 45px;
-            background-size: 25px;
-        }}
         span {{
+            color: green;
+            float: left;
+            clear: left;
             display: block;
         }}
         </style>
@@ -291,7 +291,7 @@ def mail_client(message_content, subject, **kwargs):
     message.attach(render)
     with smtplib.SMTP(smtp_server) as server:
         server.sendmail(
-            sender_email, receiver_email, message.as_string()
+            sender_email, receiver_emails, message.as_string()
         )
 
 
